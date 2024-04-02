@@ -10,16 +10,21 @@ class PhotoResizer:
         self.new_photo_directory = new_photo_directory
 
     def resize_photo(self, filepath, filename, quality_reduction=10):
+        print("[img] ", filename)
+
         with Image.open(filepath) as img:
             width, height = img.size
             quality = 100
-            print(f'[img] {filename}')
-            while os.path.getsize(filepath) > 700 * 1024:
-                new_directory = self.create_new_directory(os.path.dirname(filepath))
-                img.save(os.path.join(new_directory, filename), quality=quality)
-                quality -= quality_reduction
-                if quality <= 0:
-                    break
+            if os.path.getsize(filepath) > 700 * 1024:
+                while os.path.getsize(filepath) > 700 * 1024:
+                    new_directory = self.create_new_directory(os.path.dirname(filepath))
+                    img.save(os.path.join(new_directory, filename), quality=quality)
+                    quality -= quality_reduction
+                    if quality <= 0:
+                        break
+            # else:
+            #     new_directory = self.create_new_directory(os.path.dirname(filepath))
+            #     img.save(os.path.join(new_directory, filename))
 
     def create_new_directory(self, directory):
         current_datetime = datetime.now().strftime('%d.%m.%Y_%H.%M')
