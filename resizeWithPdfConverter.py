@@ -36,33 +36,22 @@ class PhotoResizer:
     def process_jpg_file(self, filepath, filename, quality_reduction):
         # Открываем изображение
         with Image.open(filepath) as img:
-            # Определяем начальные размеры изображения
             width, height = img.size
-            # Устанавливаем начальное качество изображения
             quality = 100
-            # Проверяем размер изображения
             if os.path.getsize(filepath) > 700 * 1024:
-                # Постепенно уменьшаем качество до тех пор, пока не будет меньше 700 кб
                 while os.path.getsize(filepath) > 700 * 1024:
-                    # Создаем путь к новой директории
                     new_directory = self.create_new_directory(self.photo_directory)
-                    # Сохраняем уменьшенное изображение в новый каталог с тем же именем файла
                     img.save(os.path.join(new_directory, filename), quality=quality)
-                    # Обновляем качество изображения для следующей итерации
                     quality -= quality_reduction
-                    # Проверяем, что качество не стало меньше или равным 0
                     if quality <= 0:
                         break
             else:
-                # Сохраняем оригинальный файл в новый каталог
                 new_directory = self.create_new_directory(self.new_photo_directory)
                 img.save(os.path.join(new_directory, filename))
 
     def create_new_directory(self, directory):
-        # Создаем имя для нового каталога на основе текущей даты и времени
         current_datetime = datetime.now().strftime('%d.%m.%Y_%H.%M')
         new_directory = os.path.join(directory, 'photos_' + current_datetime)
-        # Создаем новую директорию, если она еще не существует
         os.makedirs(new_directory, exist_ok=True)
         return new_directory
 
