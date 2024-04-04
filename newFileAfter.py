@@ -54,17 +54,42 @@ class PhotoResizer:
                 if filename.lower().endswith('.jpg'):
                     self.resize_photo(filepath)
 
+    # def resize_photo(self, filepath, quality_reduction=10):
+    #     with Image.open(filepath) as img:
+    #         quality = 100
+    #         while os.path.getsize(filepath) > 700 * 1024:
+    #             new_filepath = os.path.join(self.resized_photo_directory,
+    #                                         os.path.relpath(filepath, self.photo_directory))
+    #             os.makedirs(os.path.dirname(new_filepath), exist_ok=True)
+    #             img.save(new_filepath, quality=quality)
+    #             quality -= quality_reduction
+    #             if quality <= 0:
+    #                 break
+
     def resize_photo(self, filepath, quality_reduction=10):
         with Image.open(filepath) as img:
-            quality = 100
-            while os.path.getsize(filepath) > 700 * 1024:
+            # Получаем размер файла
+            file_size = os.path.getsize(filepath)
+
+            # Если размер файла меньше или равен 700 КБ, просто копируем его в новый путь
+            if file_size <= 700 * 1024:
                 new_filepath = os.path.join(self.resized_photo_directory,
                                             os.path.relpath(filepath, self.photo_directory))
                 os.makedirs(os.path.dirname(new_filepath), exist_ok=True)
-                img.save(new_filepath, quality=quality)
-                quality -= quality_reduction
-                if quality <= 0:
-                    break
+                with open(filepath, 'rb') as f_src, open(new_filepath, 'wb') as f_dst:
+                    f_dst.write(f_src.read())  # вещь )
+            else:
+                # Иначе уменьшаем качество изображения
+                quality = 100
+                while file_size > 700 * 1024:
+                    new_filepath = os.path.join(self.resized_photo_directory,
+                                                os.path.relpath(filepath, self.photo_directory))
+                    os.makedirs(os.path.dirname(new_filepath), exist_ok=True)
+                    img.save(new_filepath, quality=quality)
+                    quality -= quality_reduction
+                    file_size = os.path.getsize(new_filepath)
+                    if quality <= 0:
+                        break
 
 
 def main():
